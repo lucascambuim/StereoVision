@@ -43,11 +43,14 @@ int main()
 
 	//image list load	
 	string Left_imglist_filename = "./imgLeft_list.xml";
-	string Right_imglist_filename = "./imgRight_list.xml";;
+	string Right_imglist_filename = "./imgRight_list.xml";
 	string Left_imglist_path = "./Stereo_sample_video_L/";
 	string Right_imglist_path = "./Stereo_sample_video_R/";
 	vector<string> vLeftimglist, vRightimglist;
 	int nimages;
+	
+	
+
 
 	bool ok = readStringList(Left_imglist_filename, vLeftimglist);
 	if (ok == false) { cout << "left file error" << endl; return -1; }
@@ -64,6 +67,8 @@ int main()
 
 	StereoBM bm;
 	StereoSGBM sgbm;
+	
+
 
 	if (!img1_filename || !img2_filename)
 	{
@@ -80,6 +85,8 @@ int main()
 	int color_mode = alg == STEREO_BM ? 0 : -1;
 	Mat img1 = imread(img1_filename, color_mode);
 	Mat img2 = imread(img2_filename, color_mode);
+	
+
 
 	if (scale != 1.f)
 	{
@@ -95,17 +102,21 @@ int main()
 
 	Rect roi1, roi2;
 	Mat Q;
+	
+
 
 	if (intrinsic_filename)
 	{
 		// reading intrinsic parameters
+				
 		FileStorage fs(intrinsic_filename, CV_STORAGE_READ);
+
 		if (!fs.isOpened())
 		{
 			printf("Failed to open file %s\n", intrinsic_filename);
 			return -1;
 		}
-
+		
 		Mat M1, D1, M2, D2;
 		fs["M1"] >> M1;
 		fs["D1"] >> D1;
@@ -114,6 +125,8 @@ int main()
 
 		M1 *= scale;
 		M2 *= scale;
+		
+				
 
 		fs.open(extrinsic_filename, CV_STORAGE_READ);
 		if (!fs.isOpened())
@@ -125,6 +138,8 @@ int main()
 		Mat R, T, R1, P1, R2, P2;
 		fs["R"] >> R;
 		fs["T"] >> T;
+		
+
 
 		//cout << R << endl << T << endl;
 		stereoRectify(M1, D1, M2, D2, img_size, R, T, R1, R2, P1, P2, Q, CALIB_ZERO_DISPARITY, -1, img_size, &roi1, &roi2);
@@ -133,6 +148,8 @@ int main()
 		initUndistortRectifyMap(M1, D1, R1, P1, img_size, CV_16SC2, map11, map12);
 		initUndistortRectifyMap(M2, D2, R2, P2, img_size, CV_16SC2, map21, map22);
 	}
+	
+					
 
 	//numberOfDisparities = numberOfDisparities > 0 ? numberOfDisparities : ((img_size.width/8) + 15) & -16;
 
@@ -173,13 +190,25 @@ int main()
 	/////////////////////////////////////on-line////////////////////////////////////////
 	for (int i = 0; i<nimages; i++){
 
+
+        //cout << (Left_imglist_path + vLeftimglist[i]).c_str() << endl;
+        //cout << (Right_imglist_path + vRightimglist[i]).c_str() << endl;
+        
+        //getchar();
+        
 		img1 = imread((Left_imglist_path + vLeftimglist[i]).c_str(), color_mode);	//c_str() 는 char*로의 타입 변환 함수
 		img2 = imread((Right_imglist_path + vRightimglist[i]).c_str(), color_mode);
+		
+		//imshow("teste",img1);
+		//waitKey(0);
 
 		resize(img1, img1re, Size(320, 240));
 		resize(img2, img2re, Size(320, 240));
 		static int no_data = 400;
 		int64 t = getTickCount();
+		
+		//cout << "opa" << endl;
+		//		getchar();
 
 		if (alg == STEREO_BM)
 			bm(img1, img2, disp);
