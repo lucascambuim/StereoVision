@@ -60,7 +60,7 @@ int main()
 	else nimages = vLeftimglist.size();
 
 	enum { STEREO_BM = 0, STEREO_SGBM = 1 };
-	int alg = 0;
+	int alg = 1;
 	int SADWindowSize = 9, numberOfDisparities = 48;
 	bool no_display = false;
 	float scale = 1.f;
@@ -81,11 +81,18 @@ int main()
 		printf("Command-line parameter error: either both intrinsic and extrinsic parameters must be specified, or none of them (when the stereo pair is already rectified)\n");
 		return -1;
 	}
+	
+	
 
-	int color_mode = alg == STEREO_BM ? 0 : -1;
+	int color_mode = alg == STEREO_BM ? 0 : 0;
+	cout << img1_filename << endl;
 	Mat img1 = imread(img1_filename, color_mode);
 	Mat img2 = imread(img2_filename, color_mode);
 	
+    //imshow("img1", img1);
+    //waitKey(0);
+    
+    //return(0);
 
 
 	if (scale != 1.f)
@@ -214,17 +221,29 @@ int main()
 			bm(img1, img2, disp);
 		else if (alg == STEREO_SGBM)
 			sgbm(img1, img2, disp);
+			
+		
 
 		disp.convertTo(disp8, CV_8U, 255 / (numberOfDisparities*16.));
+		
+		
 
 		if (!no_display)
 		{
 			imshow("left raw image", img1re);
+			
 			//imshow("disparity map", disp8);
+			
+			imshow("img1re", img1re);
+			waitKey(0);
 			cvtColor(img1re, img1rec, COLOR_GRAY2BGR);
+			//img1rec = img1re.clone();
+			
 
 			Mat forocc;
 			disp8.copyTo(forocc);
+			
+			
 
 			Mat element = getStructuringElement(CV_SHAPE_RECT, Size(8, 8));	// 커널 생성
 			Mat element1 = getStructuringElement(CV_SHAPE_RECT, Size(5, 5));	// 커널 생성
@@ -233,6 +252,7 @@ int main()
 			
 			Mat vvDisparity;
 			Mat vDisparity = computeVDisparity(disp8);
+			imshow("disp", disp8);
 			//threshold(vDisparity, vvDisparity, 10, 255, CV_THRESH_TOZERO);
 			vDisparity.copyTo(vvDisparity);
 			//imshow("VDisparity method", vDisparity);
