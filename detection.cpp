@@ -160,12 +160,12 @@ int main()
 
 	//numberOfDisparities = numberOfDisparities > 0 ? numberOfDisparities : ((img_size.width/8) + 15) & -16;
 
-	bm.state->preFilterCap = 31; // 전처리
+	bm.state->preFilterCap = 31; // Pretreatment
 	bm.state->SADWindowSize = SADWindowSize > 0 ? SADWindowSize : 9;
 	bm.state->minDisparity = 0;
 	bm.state->numberOfDisparities = numberOfDisparities;
-	bm.state->textureThreshold = 10; // SAD응답의 최소값
-	bm.state->uniquenessRatio = 15; // 후처리 위해
+	bm.state->textureThreshold = 10; // SAD Minimum value of response
+	bm.state->uniquenessRatio = 15; // For post processing
 	bm.state->speckleWindowSize = 400;//100;
 	bm.state->speckleRange = 32; //32;
 	bm.state->disp12MaxDiff = 1;
@@ -203,7 +203,7 @@ int main()
         
         //getchar();
         
-		img1 = imread((Left_imglist_path + vLeftimglist[i]).c_str(), color_mode);	//c_str() 는 char*로의 타입 변환 함수
+		img1 = imread((Left_imglist_path + vLeftimglist[i]).c_str(), color_mode);	//c_str() Is a type conversion function to char *
 		img2 = imread((Right_imglist_path + vRightimglist[i]).c_str(), color_mode);
 		
 		//imshow("teste",img1);
@@ -245,9 +245,9 @@ int main()
 			
 			
 
-			Mat element = getStructuringElement(CV_SHAPE_RECT, Size(8, 8));	// 커널 생성
-			Mat element1 = getStructuringElement(CV_SHAPE_RECT, Size(5, 5));	// 커널 생성
-			Mat element2 = getStructuringElement(CV_SHAPE_RECT, Size(2, 2));	// 커널 생성
+			Mat element = getStructuringElement(CV_SHAPE_RECT, Size(8, 8));	// Create kernel
+			Mat element1 = getStructuringElement(CV_SHAPE_RECT, Size(5, 5));	// Create kernel
+			Mat element2 = getStructuringElement(CV_SHAPE_RECT, Size(2, 2));	// Create kernel
 			Mat temp(360, 480, CV_8U, Scalar(0));
 			
 			Mat vvDisparity;
@@ -313,14 +313,14 @@ int main()
 					{
 						double cost = ransac_line_fitting(data, k, ground, 30);
 						double ylim = ((ground.my*(-ground.sx)) / ground.mx) + ground.sy;
-						if (ylim >= 80 && ylim<160 && slop<1.4) // 처음 직선 검출 못했을 때 샘플개수 줄여보기
+						if (ylim >= 80 && ylim<160 && slop<1.4) // Reduce the number of samples when the first straight line is not detected
 						{
 							Ymx = ground.mx; Ymy = ground.my; Ysx = ground.sx; Ysy = ground.sy;
 							line(vvvDisparity, Point(0, ((ground.my*(-ground.sx)) / ground.mx) + ground.sy), Point(255, ((ground.my*(255 - ground.sx)) / ground.mx) + ground.sy), Scalar(0, 0, 255), 2);
 							line(vvDisparity, Point(0, pt1y), Point(255, pt2y), Scalar(0, 0, 255), 1);
 							break;
 						}
-						else if (k >= 250) // 직선 검출 못 했을 때
+						else if (k >= 250) // When a straight line is not detected
 						{
 							line(vvvDisparity, Point(0, pt1y), Point(255, pt2y), Scalar(0, 0, 255), 2);
 							line(vvDisparity, Point(0, pt1y), Point(255, pt2y), Scalar(0, 0, 255), 1);
@@ -382,16 +382,16 @@ int main()
 			//imshow("disp filtering",disp8);
 			//threshold(uDisparity, uDisparity, 15, 255, CV_THRESH_BINARY);
 			//imshow("UDisparity before", uDisparity);
-			morphologyEx(disp8, temp, CV_MOP_CLOSE, element1);	// 모폴로지 닫기	
+			morphologyEx(disp8, temp, CV_MOP_CLOSE, element1);	// Close morphology	
 			//imshow("filtering image", temp);
 			//	threshold(disp8, disp8u, 79.68, 255, CV_THRESH_BINARY); // 25m
 			//
 			//	vector<vector<Point>> contours;
-			//	 // 외곽선 벡터 , 외부 외곽선 검색, 각 외곽선의 모든 화소 탐색
+			//	 // Outline vector, outer outline search, all pixels of each outline
 			//	findContours(disp8u, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE); 
 			//		
-			// int cmin= 300;  // 최소 외곽선 길이
-			// int cmax= 10000; // 최대 외곽선 길이
+			// int cmin= 300;  // Minimum outline length
+			// int cmax= 10000; // Maximum outline length
 			//
 			// vector<vector<Point>>::const_iterator itc= contours.begin();
 			//
@@ -402,21 +402,21 @@ int main()
 			//   ++itc;
 			// }
 			//
-			// // 원본 영상 내 외곽선 그리기
+			// // Draw an outline in the original image
 			//
 			// //Mat original= imgThres;
-			// // 모든 외곽선 그리기, 하얗게, 두께를 2로
+			// // Draw all outlines, white, with a thickness of 2
 			////	drawContours(original,contours, -1, Scalar(255), 2);      
 			//
 			// Rect r;
 			// for(int i=0;i<contours.size();i++)
 			// {
 			//	  r= boundingRect(Mat(contours[i]));
-			// 	 rectangle(disp8, r, Scalar(255), 2);	//disparity에 그 사각형 집어넣기
-			// 	 rectangle(temp, r, Scalar(255), 2);	//disparity에 그 사각형 집어넣기
+			// 	 rectangle(disp8, r, Scalar(255), 2);	//Put that square on disparity
+			// 	 rectangle(temp, r, Scalar(255), 2);	//Put that square on disparity
 			//
-			//	 int x=r.x+r.width/2;	//x는 사각형 가로 가운데
-			//	 int y=(r.y+r.height/2)-4;	//y는 사각형 세로 가운데 -4
+			//	 int x=r.x+r.width/2;	//x is the square horizontal center
+			//	 int y=(r.y+r.height/2)-4;	//y is the rectangle centered vertically -4
 			//	 int sumd=0;
 			//	 int k=0;
 			//
@@ -456,7 +456,7 @@ int main()
 
 			imshow("filtering result", result);
 			threshold(rectt, rectt, 59.77, 255, CV_THRESH_TOZERO); // 20m
-			// 클러스터링 해보기
+			// Try clustering
 			for (int v = rectt.cols - 4; v >= 30; v -= 3){
 				int kk = 0;
 				for (int u = rectt.rows - 1; u >= 0; u--){
@@ -696,7 +696,7 @@ Mat computeUDisparity(Mat img)
 	}
 	return uDisp;
 }
-Mat occupancygrid(Mat occ, Mat forocc, Mat obstacle) // forocc = disp img, obs = 장애물, 지면만 detection된 disp img
+Mat occupancygrid(Mat occ, Mat forocc, Mat obstacle) // forocc = disp img, obs = Obstacle, ground detected only disp img
 {
 	Mat occupancyimg(423, 480, CV_8U, Scalar(0));
 	cvtColor(occupancyimg, occ, CV_GRAY2BGR);
@@ -786,7 +786,7 @@ bool find_in_samples(sPoint *samples, int no_samples, sPoint *data)
 }
 void get_samples(sPoint *samples, int no_samples, sPoint *data, int no_data)
 {
-	// 데이터에서 중복되지 않게 N개의 무작위 셈플을 채취한다.
+	// Obtain N random samples to avoid duplication in the data.
 	for (int i = 0; i<no_samples;) {
 		int j = rand() % no_data;
 
@@ -798,7 +798,7 @@ void get_samples(sPoint *samples, int no_samples, sPoint *data, int no_data)
 }
 int compute_model_parameter(sPoint samples[], int no_samples, sLine &model)
 {
-	// PCA 방식으로 직선 모델의 파라메터를 예측한다.
+	// PCA Method predicts the parameters of the linear model.
 
 	double sx = 0, sy = 0;
 	double sxx = 0, syy = 0;
@@ -832,13 +832,12 @@ int compute_model_parameter(sPoint samples[], int no_samples, sLine &model)
 	model.sx = sx / sw;
 	model.sy = sy / sw;
 
-	//직선의 방정식: sin(theta)*(x - sx) = cos(theta)*(y - sy);
+	//The equation of the line is: sin (theta) * (x - sx) = cos (theta) * (y - sy);
 	return 1;
 }
 double compute_distance(sLine &line, sPoint &x)
 {
-	// 한 점(x)로부터 직선(line)에 내린 수선의 길이(distance)를 계산한다.
-
+	// Calculate the distance of a waterline falling from a point (x) to a line.
 	return fabs((x.x - line.sx)*line.my - (x.y - line.sy)*line.mx) / sqrt(line.mx*line.mx + line.my*line.my);
 }
 double model_verification(sPoint *inliers, int *no_inliers, sLine &estimated_model, sPoint *data, int no_data, double distance_threshold)
@@ -847,10 +846,10 @@ double model_verification(sPoint *inliers, int *no_inliers, sLine &estimated_mod
 	double cost = 0.;
 
 	for (int i = 0; i<no_data; i++){
-		// 직선에 내린 수선의 길이를 계산한다.
+		// Calculate the length of the waterline on a straight line.
 		double distance = compute_distance(estimated_model, data[i]);
 
-		// 예측된 모델에서 유효한 데이터인 경우, 유효한 데이터 집합에 더한다.
+		// If the data is valid in the predicted model, it is added to the valid data set.
 		if (distance < distance_threshold) {
 			cost += 1.;
 
@@ -880,15 +879,15 @@ double ransac_line_fitting(sPoint *data, int no_data, sLine &model, double dista
 
 	for (int i = 0; i<max_iteration; i++) {
 		// 1. hypothesis
-		// 원본 데이터에서 임의로 N개의 셈플 데이터를 고른다.
+		// Select N sample data arbitrarily from the original data
 		get_samples(samples, no_samples, data, no_data);
 
-		// 이 데이터를 정상적인 데이터로 보고 모델 파라메터를 예측한다.
+		// View this data as normal data and predict model parameters.
 		compute_model_parameter(samples, no_samples, estimated_model);
 		// 2. Verification
-		// 원본 데이터가 예측된 모델에 잘 맞는지 검사한다.
+		// Check whether the original data is suitable for the predicted model
 		double cost = model_verification(inliers, &no_inliers, estimated_model, data, no_data, distance_threshold);
-		// 만일 예측된 모델이 잘 맞는다면, 이 모델에 대한 유효한 데이터로 새로운 모델을 구한다.
+		// If the predicted model fits well, we obtain a new model with valid data for this model.
 		if (max_cost < cost) {
 			max_cost = cost;
 			compute_model_parameter(inliers, no_inliers, model);
